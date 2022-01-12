@@ -29,8 +29,7 @@ class Location(BaseModel):
 
 
 #Models
-
-class Person(BaseModel):
+class PersonOut(BaseModel):
     first_name: str = Field(
     ...,
     min_length = 1,
@@ -48,16 +47,28 @@ class Person(BaseModel):
     hair_color: Optional[HairColor] = Field(default = None)
     is_married: Optional[bool] = Field(default = None)
 
-    class Config:
-        schema_extra = {
-        "example":{
-        "first_name": "zack",
-        "last_name": "seneger",
-        "age": 24,
-        "hair_color": "black",
-        "is_married": False
-        }
-        }
+
+
+class Person(BaseModel):
+    first_name: str = Field(
+    ...,
+    min_length = 1,
+    max_length = 50,
+    )
+    last_name: str = Field(
+    ...,
+    min_length = 1,
+    max_length = 50
+    )
+    age: int = Field(
+    gt = 0,
+    le = 115
+    )
+    password: str = Field(...,min_length = 8)
+    hair_color: Optional[HairColor] = Field(default = None)
+    is_married: Optional[bool] = Field(default = None)
+
+
 
 
 #Path operator decorator
@@ -68,7 +79,7 @@ def home():
 
 #Request and Response body
 
-@app.post("/persona/new")
+@app.post("/persona/new", response_model = Person, response_model_exclude={'password'})
 def create_preson(person: Person = Body(...)):
     return person
 
