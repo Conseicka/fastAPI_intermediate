@@ -5,11 +5,12 @@ from enum import Enum
 #Pydantic
 from pydantic import BaseModel
 from pydantic import Field
+from pydantic import EmailStr
 
 #FastAPI
 from fastapi import status
 from fastapi import FastAPI
-from fastapi import Body, Query, Path, Form
+from fastapi import Body, Query, Path, Form, Header, Cookie
 
 #uvn helloWorld:app --reload
 app = FastAPI()
@@ -123,6 +124,7 @@ person_id: int = Path(
     #return result
     return person
 
+#Forms
 @app.post(
     path = "/login",
     response_model = LogInOut,
@@ -130,3 +132,30 @@ person_id: int = Path(
 )
 def login(username: str = Form(...), password: str = Form (...)):
     return LogInOut(username = username)
+
+#cookies y header
+
+@app.post(
+    path = "/contact",
+    status_code = status.HTTP_200_OK
+)
+def contact(
+    first_name: str = Form(
+        ...,
+        min_lenght = 1,
+        max_lenght = 20
+    ),
+    last_name: str = Form(
+        ...,
+        min_lenght = 1,
+        max_lenght = 20
+    ),
+    email: EmailStr = Form(...),
+    message: str = Form(
+        ...,
+        min_lenght = 20
+        ),
+    user_agent: Optional [str] = Header(default = None),
+    ads: Optional [str] = Cookie(default = None),
+):
+    return user_agent
