@@ -9,7 +9,7 @@ from pydantic import Field
 #FastAPI
 from fastapi import status
 from fastapi import FastAPI
-from fastapi import Body, Query, Path
+from fastapi import Body, Query, Path, Form
 
 #uvn helloWorld:app --reload
 app = FastAPI()
@@ -54,7 +54,9 @@ class PersonOut(BaseModel):
 class Person(PersonBase):
     password: str = Field(...,min_length = 8)
 
-
+class LogInOut(BaseModel):
+    username: str = Field(..., max_length = 20)
+    message: str = Field(default = "Login succesfully!")
 
 #Path operator decorator
 @app.get(path = "/",
@@ -120,3 +122,11 @@ person_id: int = Path(
     #result.update(location.dict())
     #return result
     return person
+
+@app.post(
+    path = "/login",
+    response_model = LogInOut,
+    status_code = status.HTTP_200_OK
+)
+def login(username: str = Form(...), password: str = Form (...)):
+    return LogInOut(username = username)
