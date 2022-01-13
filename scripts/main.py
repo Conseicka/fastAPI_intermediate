@@ -139,7 +139,8 @@ persons = [1, 2, 3, 4, 5]
 @app.get(
     path = "/person/detail/{person_id}",
     status_code = status.HTTP_202_ACCEPTED,
-    tags = ["Persons"],)
+    tags = ["Persons"],
+    deprecated = True,)
 def show_person(
     person_id: int = Path(
         ...,
