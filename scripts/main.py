@@ -19,6 +19,7 @@ app = FastAPI()
 #Path parameter: este va entre llaves {xxxx}
 #Query parameters: se usa para enviar informacion que no es obligatoria
 
+#~~~~~~~~~~Models~~~~~~~~~~
 class HairColor(Enum):
     white = "white"
     brown = "brown"
@@ -31,7 +32,6 @@ class Location(BaseModel):
     state: str
     country: str
 
-#Models
 class PersonBase(BaseModel):
     first_name: str = Field(
     ...,
@@ -60,53 +60,69 @@ class LogInOut(BaseModel):
     username: str = Field(..., max_length = 20)
     message: str = Field(default = "Login succesfully!")
 
+#~~~~~~~~~~Path Operations~~~~~~~~~~
+
 #Path operator decorator
-@app.get(path = "/",
-    status_code=status.HTTP_200_OK)
+@app.get(
+    path = "/",
+    status_code=status.HTTP_200_OK,
+    tags = ["Home"],
+    )
 #Path operation function
 def home():
     return{"hello": "world"}
 
+#------------------------------------------------
 #Request and Response body
 
 @app.post(
     path = "/persona/new",
     response_model = Person,
     response_model_exclude={'password'},
-    status_code = status.HTTP_201_CREATED)
+    status_code = status.HTTP_201_CREATED,
+    tags = ["Persons"],
+    )
 def create_preson(person: Person = Body(...)):
     return person
 
-@app.get(path = "/person/detail", 
-    status_code = status.HTTP_202_ACCEPTED)
+#------------------------------------------------
+
+@app.get(
+    path = "/person/detail", 
+    status_code = status.HTTP_202_ACCEPTED,
+    tags = ["Persons"],
+    )
 def show_person(
     name: Optional[str] = Query(
-    None,
-    min_length = 1,
-    max_length = 50,
-    title = "Person Name",
-    description = "This is the person name. It's between 1 and 50 characters."
+        default = None,
+        min_length = 1,
+        max_length = 50,
+        title = "Person Name",
+        description = "This is the person name. It's between 1 and 50 characters."
     ),
     age: str = Query(
-    ...,
-    title = "Person Age.",
-    description = "This is the person age. It's required."
-    )
+        ...,
+        title = "Person Age.",
+        description = "This is the person age. It's required."
+    ),
 
-    ):
+):
     return {name : age}
+
+#------------------------------------------------
 
 persons = [1, 2, 3, 4, 5]
 
 @app.get(
     path = "/person/detail/{person_id}",
-    status_code = status.HTTP_202_ACCEPTED)
+    status_code = status.HTTP_202_ACCEPTED,
+    tags = ["Persons"],)
 def show_person(
     person_id: int = Path(
-    ...,
-    gt = 0
+        ...,
+        gt = 0,
         )
-    ):
+):
     if person_id not in persons:
         raise HTTPException(
             status_code = status.HTTP_404_NOT_FOUND,
@@ -114,23 +130,28 @@ def show_person(
         )
     return {person_id: "It exists!"}
 
+#------------------------------------------------
+
 @app.put(
         path = "/person/{person_id}",
-        status_code = status.HTTP_202_ACCEPTED)
+        status_code = status.HTTP_202_ACCEPTED,
+        tags = ["Persons"],)
 def update_person(
-person_id: int = Path(
-    ...,
-    title = "Person ID",
-    description = "This is the person ID",
-    gt = 0
+    person_id: int = Path(
+        ...,
+        title = "Person ID",
+        description = "This is the person ID",
+        gt = 0
     ),
     person: Person = Body(...),
-    #location: Location = Body(...)
+    #location: Location = Body(...),
 ):
     #result = person.dict()
     #result.update(location.dict())
     #return result
     return person
+
+#------------------------------------------------
 
 #Forms
 @app.post(
@@ -138,7 +159,10 @@ person_id: int = Path(
     response_model = LogInOut,
     status_code = status.HTTP_200_OK
 )
-def login(username: str = Form(...), password: str = Form (...)):
+def login(
+    username: str = Form(...), 
+    password: str = Form (...),
+):
     return LogInOut(username = username)
 
 #cookies y header
@@ -168,6 +192,8 @@ def contact(
 ):
     return user_agent
 
+#------------------------------------------------
+
 
 @app.post(
     path = "/post-image"
@@ -180,3 +206,5 @@ def post_image(
         "Format": image.content_type,
         "Size(kb)": round(len(image.file.read()) / 1027, ndigits = 2)
     }
+
+#------------------------------------------------
