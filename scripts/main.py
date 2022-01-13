@@ -74,15 +74,28 @@ def home():
 
 #------------------------------------------------
 #Request and Response body
-
+#Titulo, Descripcion, Parametros, Resultado
 @app.post(
     path = "/persona/new",
     response_model = Person,
     response_model_exclude={'password'},
     status_code = status.HTTP_201_CREATED,
     tags = ["Persons"],
+    summary = "Create a Person in the app.",
     )
 def create_preson(person: Person = Body(...)):
+    """
+    Create Person
+
+    This path operation creates a person in the app and save the informatin in the database.
+
+    Parameters:
+
+    -Request Body parameter:
+        -**person: Person** -> A person model with first name, last name, age, hair color and marital status.
+
+    Retunrs a person moel with first name, last name, age, hair color and marital status.
+    """
     return person
 
 #------------------------------------------------
@@ -91,6 +104,7 @@ def create_preson(person: Person = Body(...)):
     path = "/person/detail", 
     status_code = status.HTTP_202_ACCEPTED,
     tags = ["Persons"],
+    summary = "Show person details.",
     )
 def show_person(
     name: Optional[str] = Query(
@@ -98,15 +112,24 @@ def show_person(
         min_length = 1,
         max_length = 50,
         title = "Person Name",
-        description = "This is the person name. It's between 1 and 50 characters."
-    ),
+        description = "This is the person name. It's between 1 and 50 characters.",
+     ),
     age: str = Query(
         ...,
         title = "Person Age.",
         description = "This is the person age. It's required."
     ),
-
 ):
+    """
+    Show person details
+    
+    This Operation shows a person details.
+
+    Parameters:    
+        -Query parameter: Person name.
+
+    Returns a Person details.
+    """
     return {name : age}
 
 #------------------------------------------------
